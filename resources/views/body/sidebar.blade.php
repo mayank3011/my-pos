@@ -34,6 +34,13 @@
                                 <span> Sales Report </span>
                             </a>
                         </li>
+                        <li>
+                            <a href="{{ route('return_orders.index') }}">
+                                <span class="badge bg-blue float-end">Yeah</span>
+                                <i class="mdi mdi-undo"></i>
+                                <span>Return Orders</span>
+                            </a>
+                        </li>
 
 
 

@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Binafy\LaravelCart\Cartable;
 
-class Product extends Model
+class Product extends Model implements Cartable
 {
     use HasFactory;
     protected $guarded = [];
 
+    
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_id', 'id');
@@ -30,4 +32,18 @@ class Product extends Model
     {
         return $this->hasMany(Orderdetails::class, 'product_id');
     }
+    public function getPrice(): float
+    {
+        return (float) $this->selling_price*100;
+    }
+    public function decrementStock($quantity)
+    {
+        $this->decrement('product_store', $quantity);
+    }
+
+    public function incrementStock($quantity)
+    {
+        $this->increment('product_store', $quantity);
+    }
 }
+

@@ -16,6 +16,7 @@ use App\Http\Controllers\Backend\PosController;
 use App\Http\Controllers\Backend\OrderController;
 use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\Backend\ReturnOrderController;
 
 
 /* 
@@ -66,15 +67,21 @@ Route::middleware(['auth'])->group(function () {
     /// Employee All Route 
     Route::controller(EmployeeController::class)->group(function () {
 
-        Route::get('/all/employee', 'AllEmployee')->name('all.employee');
-        Route::get('/add/employee', 'AddEmployee')->name('add.employee');
+        Route::get('/all/employee', 'AllEmployee')->name('all.employee')->middleware('permission:employee.all');
+        Route::get('/add/employee', 'AddEmployee')->name('add.employee')->middleware('permission:employee.add');
         Route::post('/store/employee', 'StoreEmployee')->name('employee.store');
         Route::get('/edit/employee/{id}', 'EditEmployee')->name('edit.employee');
         Route::post('/update/employee', 'UpdateEmployee')->name('employee.update');
         Route::get('/delete/employee/{id}', 'DeleteEmployee')->name('delete.employee');
     });
 
+    Route::get('return-orders', [ReturnOrderController::class, 'index'])->name('return_orders.index');
+    Route::get('return-orders/create', [ReturnOrderController::class, 'create'])->name('return_orders.create');
+    Route::post('return-orders', [ReturnOrderController::class, 'store'])->name('return_orders.store');
+    Route::get('{order}/return', [ReturnOrderController::class, 'returnFromOrder'])->name('orders.return');
 
+    // Process the return order submission
+    Route::post('{order}/return', [ReturnOrderController::class, 'storeReturnFromOrder'])->name('orders.return.store');
 
     /// Customer All Route 
     Route::controller(CustomerController::class)->group(function () {
@@ -188,6 +195,7 @@ Route::middleware(['auth'])->group(function () {
 
     ///Pos All Route 
     Route::controller(PosController::class)->group(function () {
+        
 
         Route::get('/pos', 'Pos')->name('pos');
         Route::post('/add-cart', 'AddCart');
@@ -197,13 +205,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/remove-discount', [PosController::class, 'removeDiscount'])->name('remove.discount');
         Route::post('/apply-discount', [PosController::class, 'applyDiscount'])->name('apply.discount');
         Route::post('/create-invoice', 'CreateInvoice');
+        Route::get('/print/receipt', 'printReceipt')->name('print.receipt');
     });
 
 
     ///Order All Route 
+
     Route::controller(OrderController::class)->group(function () {
 
-        Route::post('/final-invoice', 'FinalInvoice');
+        Route::post('/final-invoice', 'FinalInvoice');    
         Route::get('/pending/order', 'PendingOrder')->name('pending.order');
         Route::get('/order/details/{order_id}', 'OrderDetails')->name('order.details');
         Route::post('/order/status/update', 'OrderStatusUpdate')->name('order.status.update');
@@ -214,7 +224,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/order/invoice-download/{order_id}', 'OrderInvoice');
 
         //// Due All Route 
-
+        Route::get('/order/send-mail/{id}', [OrderController::class, 'sendMail'])->name('order.sendMail');
+        Route::get('/order/print/{id}', [OrderController::class, 'print'])->name('order.print');
         Route::get('/pending/due', 'PendingDue')->name('pending.due');
         Route::get('/order/due/{id}', 'OrderDueAjax');
         Route::post('/update/due', 'UpdateDue')->name('update.due');
